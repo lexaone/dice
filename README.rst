@@ -22,19 +22,19 @@ Generate a second password for the same parameters.::
 
 Generate a ten words long diceware password.::
 
-    $ echo -n "example password" | dice --stdin Jane\\ Doe example.com | xclip
-    -selection clipboard
+    $ echo -n "mypassword" | dice --stdin Jane\ Doe example.com | xclip
 
 Read the password from standard input. The generated password, which is written
 to standard output, is then piped to xclip to be copied to the clipboard.
 
-For more usage, try ``dice --help``. The ``doc/`` directory contains a manpage.
+For more usage, try ``dice --help``. A man page is provided in the ``doc/``
+directory.
 
 Building
 ========
 
 *Note: This application has only been tested on Linux and compiled successfully
-against zig 0.6.0*
+against zig 0.6.0.*
 
 Dependencies
 ------------
@@ -51,7 +51,7 @@ Instructions
     $ cd dice
     $ zig build install -Drelease-fast=true
 
-The compiled binary should be located in ``./zig-cache/bin/``
+The compiled binary should be located in ``zig-cache/bin/``
 
 License
 =======
