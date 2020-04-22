@@ -8,25 +8,19 @@ user's full name and a website name.
 Usage
 =====
 
-..
+::
 
     $ dice "John Doe" example.com
 
-Generate a six words long diceware password (six is the default).
-
-..
+Generate a six words long diceware password (six is the default).::
 
     $ dice -c1 "John Doe" example.com
 
-Generate a second password for the same parameters.
-
-..
+Generate a second password for the same parameters.::
 
     $ dice --words=10 "John Doe" example.com
 
-Generate a ten words long diceware password.
-
-..
+Generate a ten words long diceware password.::
 
     $ echo -n "example password" | dice --stdin Jane\\ Doe example.com | xclip
     -selection clipboard
@@ -51,12 +45,10 @@ Dependencies
 Instructions
 ------------
 
-..
+::
 
     $ git clone https://github.com/nofmal/dice
-
     $ cd dice
-
     $ zig build install -Drelease-fast=true
 
 The compiled binary should be located in ``./zig-cache/bin/``
