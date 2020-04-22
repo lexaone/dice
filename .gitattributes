@@ -1,0 +1,4 @@
+*.zig   text    eol=lf
+*.rst   text    eol=lf
+*.txt   text    eol=lf
+*.1     text    eol=lf

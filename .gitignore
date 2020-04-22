@@ -1,0 +1,15 @@
+*
+!.gitignore
+!.gitmodules
+!.gitattributes
+
+!*.zig
+!*.rst
+!LICENSE
+
+!doc
+!doc/*.1
+!lib
+!lib/**
+!src
+!src/**

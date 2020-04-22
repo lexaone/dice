@@ -1,0 +1,78 @@
+.TH DICE 1 2020-04-21 "dice 0.0.0" "General Commands Manual"
+.SH NAME
+dice \- generate diceware password
+.SH SYNOPSIS
+\fBdice\fR [\fIoptions\fR] \fIusername\fR \fIsitename\fR
+.SH DESCRIPTION
+.PP
+\fBdice\fR is a command-line tool for generating a diceware password based on \
+the user's full name and a website name.
+.PP
+If succeeded, the resulting generated password is then written to the standard \
+output.
+.SH OPTIONS
+.PP
+.TP
+\fB-c \fIvalue\fB, --counter=\fIvalue\fR
+Set the counter value (0..255). The default is 0.
+.TP
+\fB-w \fIvalue\fB, --words=\fIvalue\fR
+Set the number of words for the resulting generated password (5..10). The \
+default is 6.
+.TP
+\fB--stdin\fR
+Read password from the standard input instead.
+.TP
+\fB-v, --verbose\fR
+Print extra information.
+.TP
+\fB-h, --help\fR
+Show a quick summary of all options.
+.TP
+\fB--version\fR
+Show this application's version number, copyright and license.
+.SH EXIT STATUS
+.PP
+.TP
+\fB0\fR
+The program exits successfully.
+.TP
+\fB1\fR
+The program fails during retrieving environment variables.
+.TP
+\fB2\fR
+The program fails during parsing arguments.
+.TP
+\fB3\fR
+The program fails during retrieving terminal attributes.
+.TP
+\fB4\fR
+The program fails during processing user's password.
+.TP
+\fB5\fR
+The program fails during generating diceware password.
+.SH ENVIRONMENT
+.PP
+.TP
+\fBDICE_COUNTER\fR
+Overrides the default counter value.
+.TP
+\fBDICE_WORD_COUNT\fR
+Overrides the default word count value.
+.PP
+These environment variables can in turn be overridden by the argument options.
+.SH EXAMPLE
+.PP
+.TP
+$ \fBdice "John Doe" example.com\fR
+.TP
+$ \fBdice --counter 1 "John Doe" example.com\fR
+Generate a second password for the same website.
+.TP
+$ \fBdice -w10 "John Doe" example.com\fR
+Generate a ten words long diceware password.
+.TP
+$ \fBecho -n "mypassword" | dice --stdin Jane\\ Doe example.com | xclip \
+-selection clipboard\fR
+Read the password from standard input. The generated password is then written \
+to standard output, which is piped to xclip to be copied to the clipboard.
