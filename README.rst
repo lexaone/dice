@@ -33,13 +33,12 @@ directory.
 Building
 ========
 
-*Note: This application has only been tested on Linux and compiled successfully
-against zig 0.6.0.*
+*Note: This application has only been tested on Linux.*
 
-Dependencies
+Requirements
 ------------
 
-* zig == 0.6.0
+* zig nightly (please do not use the stable 0.6.0 version)
 * argon2 == 20190702
 
 Instructions

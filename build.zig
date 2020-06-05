@@ -1,91 +1,70 @@
 const std = @import("std");
-
-const builtin = std.builtin;
-const debug = std.debug;
-
 const Builder = std.build.Builder;
+const builtin = std.builtin;
 const CrossTarget = std.zig.CrossTarget;
+const debug = std.debug;
 const LibExeObjStep = std.build.LibExeObjStep;
+const NativePaths = std.zig.system.NativePaths;
 const Target = std.Target;
 
 const global = @import("src/global.zig");
 
-pub fn build(b: *Builder) void {
-    const main_exe = b.addExecutable(global.name, "src/main.zig");
+pub fn build(b: *Builder) anyerror!void {
+    b.setPreferredReleaseMode(.ReleaseFast);
 
+    const main_exe = b.addExecutable(global.name, "src/main.zig");
     main_exe.setBuildMode(b.standardReleaseOptions());
     main_exe.force_pic = true;
-
-    main_exe.addPackagePath("clap", "lib/zig-clap/clap.zig");
-
+    main_exe.addPackagePath("thirdparty/clap", "lib/zig-clap/clap.zig");
     main_exe.linkLibC();
     main_exe.linkSystemLibrary("argon2");
+
+    if (main_exe.is_linking_libc) {
+        switch (Target.current.os.tag) {
+            .linux => {
+                const use_glibc = b.option(bool, "use-glibc", "use glibc as standard c library (linux only)") orelse false;
+                const use_musl = b.option(bool, "use-musl", "use musl as standard c library (linux only)") orelse false;
+
+                const cross_abi = abi: {
+                    if (use_glibc and !use_musl)
+                        break :abi Target.Abi.gnu
+                    else if (use_musl and !use_glibc)
+                        break :abi Target.Abi.musl
+                    else if (!use_glibc and !use_musl)
+                        break :abi Target.current.abi
+                    else {
+                        debug.warn("Multiple libc modes (of -Duse-glibc and -Duse-musl)", .{});
+                        b.invalid_user_input = true;
+                        break :abi Target.current.abi;
+                    }
+                };
+
+                main_exe.setTarget(CrossTarget.fromTarget(Target{
+                    .cpu = Target.current.cpu,
+                    .os = Target.current.os,
+                    .abi = cross_abi,
+                }));
+
+                // Workaround for zig 0.6.0 nightly, or else the compiler will complain about
+                // "explicit_bzero" being unreferenced.
+                var native_paths = try NativePaths.detect(b.allocator);
+                defer native_paths.deinit();
+
+                for (native_paths.include_dirs.items) |include_dir|
+                    main_exe.addIncludeDir(include_dir);
+
+                for (native_paths.lib_dirs.items) |lib_dir|
+                    main_exe.addLibPath(lib_dir);
+            },
+            else => {},
+        }
+    }
 
     switch (main_exe.build_mode) {
         .ReleaseFast, .ReleaseSmall => main_exe.strip = true,
         else => {},
     }
 
-    //if (main_exe.is_linking_libc) {
-    //    var cross_abi = Target.current.abi;
-    //    cross_abi = setAbiOptions(main_exe);
-
-    //    if (Target.current.abi != cross_abi)
-    //        main_exe.setTarget(CrossTarget.fromTarget(Target{
-    //            .cpu = Target.current.cpu,
-    //            .os = Target.current.os,
-    //            .abi = cross_abi,
-    //        }));
-    //}
-
     main_exe.install();
     b.getInstallStep().dependOn(&main_exe.step);
-}
-
-fn setAbiOptions(artifact: *LibExeObjStep) Target.Abi {
-    return switch (Target.current.os.tag) {
-        .linux => block: {
-            const use_glibc = artifact.builder.option(bool, "use-glibc", "use glibc as standard c library") orelse false;
-            const use_musl = artifact.builder.option(bool, "use-musl", "use musl as standard c library") orelse false;
-
-            if (use_glibc and !use_musl)
-                break :block Target.Abi.gnu
-            else if (use_musl and !use_glibc)
-                break :block Target.Abi.musl
-            else if (!use_glibc and !use_musl)
-                break :block Target.current.abi
-            else {
-                debug.warn("Multiple libc modes (of -Duse-glibc and -Duse-musl)", .{});
-                artifact.builder.markInvalidUserInput();
-                break :block Target.current.abi;
-            }
-        },
-        else => Target.current.abi,
-    };
-}
-
-fn foo() void {
-    const target = std.Target{
-        .cpu = builtin.cpu,
-        .os = builtin.os,
-        //.abi = std.Target.Abi.gnu,
-        .abi = std.Target.Abi.musl,
-    };
-
-    artifact.setTarget(CrossTarget.fromTarget(target));
-
-    const triple = target.linuxTriple(artifact.builder.allocator);
-
-    artifact.addIncludeDir("/usr/local/include");
-    artifact.addIncludeDir("/usr/include");
-    artifact.addIncludeDir(artifact.builder.fmt("/usr/include/{}", .{triple}));
-
-    artifact.addLibPath("/usr/lib");
-    artifact.addLibPath("/usr/lib64");
-    artifact.addLibPath("/lib");
-    artifact.addLibPath("/lib64");
-    artifact.addLibPath("/usr/local/lib");
-    artifact.addLibPath("/usr/local/lib64");
-    artifact.addLibPath(artifact.builder.fmt("/usr/lib/{}", .{triple}));
-    artifact.addLibPath(artifact.builder.fmt("/lib/{}", .{triple}));
 }
