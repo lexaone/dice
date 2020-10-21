@@ -201,12 +201,13 @@ pub fn main() u8 {
             clap.Param(u8){
                 .id = 'c',
                 .names = clap.Names{ .short = 'c', .long = "counter" },
-                .takes_value = true,
+                //.takes_value = xxtrue,
+                .takes_value = .One,
             },
             clap.Param(u8){
                 .id = 'w',
                 .names = clap.Names{ .short = 'w', .long = "words" },
-                .takes_value = true,
+                .takes_value = .One,
             },
             clap.Param(u8){
                 .id = '|',
@@ -230,7 +231,8 @@ pub fn main() u8 {
             // Positional arguments
             clap.Param(u8){
                 .id = '@',
-                .takes_value = true,
+                //.takes_value = true,
+                .takes_value = .One,
             },
         };
 
