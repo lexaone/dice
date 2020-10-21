@@ -37,14 +37,11 @@ pub fn generatePassword(allocator: *mem.Allocator, param: Param, password: []con
         const salt_length = 64;
 
         var salt = [_]u8{0} ** salt_length;
-        crypto.Blake3.hash(
-            fmt.allocPrint(allocator, "{}{}{}", .{
-                global.id,
-                global.utf8Length(param.user_name) catch unreachable,
-                param.user_name,
-            }) catch return error.SaltNotAllocated,
-            &salt,
-        );
+        crypto.hash.Blake3.hash(fmt.allocPrint(allocator, "{}{}{}", .{
+            global.id,
+            global.utf8Length(param.user_name) catch unreachable,
+            param.user_name,
+        }) catch return error.SaltNotAllocated, &salt, .{});
         break :block salt;
     };
 
@@ -83,19 +80,16 @@ pub fn generatePassword(allocator: *mem.Allocator, param: Param, password: []con
         var seed = [_]u8{0} ** seed_length;
         const input_hash = block1: {
             var input_hash = [_]u8{0} ** seed_length;
-            crypto.Blake3.hash(
-                fmt.allocPrint(allocator, "{}{}{}{}", .{
-                    global.id,
-                    global.utf8Length(param.site_name) catch unreachable,
-                    param.site_name,
-                    param.counter,
-                }) catch return error.SeedNotAllocated,
-                &input_hash,
-            );
+            crypto.hash.Blake3.hash(fmt.allocPrint(allocator, "{}{}{}{}", .{
+                global.id,
+                global.utf8Length(param.site_name) catch unreachable,
+                param.site_name,
+                param.counter,
+            }) catch return error.SeedNotAllocated, &input_hash, .{});
 
             break :block1 input_hash;
         };
-        var keyed_hash = crypto.Blake3.init_keyed(key);
+        var keyed_hash = crypto.hash.Blake3.init(.{ .key = key });
         keyed_hash.update(&input_hash);
         keyed_hash.final(&seed);
 

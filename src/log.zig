@@ -16,7 +16,7 @@ var is_verbose_enabled = false;
 pub fn fail(bytes: []const u8) void {
     coloredWrite(red_foreground, "Error: ", bytes);
 }
-pub fn failf(comptime bytes: []const u8, args: var) void {
+pub fn failf(comptime bytes: []const u8, args: anytype) void {
     coloredPrint(red_foreground, "Error: ", bytes, args);
 }
 
@@ -28,18 +28,18 @@ pub fn verbose(bytes: []const u8) void {
     if (is_verbose_enabled) _ = stderr.write(bytes) catch {};
 }
 
-pub fn verbosef(comptime bytes: []const u8, args: var) void {
+pub fn verbosef(comptime bytes: []const u8, args: anytype) void {
     if (is_verbose_enabled) stderr.print(bytes, args) catch {};
 }
 
 pub fn warn(bytes: []const u8) void {
     coloredWrite(yellow_foreground, "Warning: ", bytes);
 }
-pub fn warnf(comptime bytes: []const u8, args: var) void {
+pub fn warnf(comptime bytes: []const u8, args: anytype) void {
     coloredPrint(yellow_foreground, "Warning: ", bytes, args);
 }
 
-fn coloredPrint(comptime fg_color: []const u8, comptime notice: []const u8, comptime bytes: []const u8, args: var) void {
+fn coloredPrint(comptime fg_color: []const u8, comptime notice: []const u8, comptime bytes: []const u8, args: anytype) void {
     _ = stderr.write(fg_color ++ bold ++ notice ++ reset_foreground) catch {};
     stderr.print(bytes, args) catch {};
     _ = stderr.write(reset_all) catch {};
