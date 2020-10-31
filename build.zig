@@ -61,7 +61,12 @@ pub fn build(b: *Builder) anyerror!void {
     }
 
     switch (main_exe.build_mode) {
-        .ReleaseFast, .ReleaseSmall => main_exe.strip = true,
+        .ReleaseFast, .ReleaseSmall => {
+            main_exe.strip = true;
+            main_exe.single_threaded = true;
+            //main_exe.is_dynamic = false;
+            main_exe.rdynamic = false;
+        },
         else => {},
     }
 
