@@ -4,6 +4,7 @@ const crypto = std.crypto;
 const debug = std.debug;
 const fmt = std.fmt;
 const mem = std.mem;
+const c_utils = std.crypto.utils;
 
 const c = @import("c.zig");
 
@@ -72,7 +73,7 @@ pub fn generatePassword(allocator: *mem.Allocator, param: Param, password: []con
         }
     };
 
-    defer mem.secureZero(u8, &key);
+    defer c_utils.secureZero(u8, &key);
 
     var seed = block0: {
         const seed_length = 64;
@@ -96,7 +97,7 @@ pub fn generatePassword(allocator: *mem.Allocator, param: Param, password: []con
         break :block0 seed;
     };
 
-    defer mem.secureZero(u8, &seed);
+    defer c_utils.secureZero(u8, &seed);
 
     var istanbul = allocator.alloc(u8, param.word_count) catch return error.OutOfMemory;
     {

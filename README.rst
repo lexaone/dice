@@ -1,5 +1,7 @@
 latest version without "llvm bug" is
 0.6.0+6ddb05d99
+https://github.com/ziglang/zig/issues/6515
+
 ====
 dice
 ====

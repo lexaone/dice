@@ -6,6 +6,7 @@ const heap = std.heap;
 const io = std.io;
 const math = std.math;
 const mem = std.mem;
+const c_utils = std.crypto.utils;
 const os = std.os;
 const process = std.process;
 const Target = std.Target;
@@ -59,8 +60,8 @@ pub fn main() u8 {
             &os.Sigaction{
                 .sigaction = struct {
                     fn deinitOnSigint(signo: i32, info: *os.siginfo_t, context: ?*c_void) callconv(.C) void {
-                        mem.secureZero(u8, &generated_password);
-                        mem.secureZero(u8, &user_password);
+                        c_utils.secureZero(u8, &generated_password);
+                        c_utils.secureZero(u8, &user_password);
                         if (arena) |alloc| alloc.deinit();
 
                         // After cleaning up, proceed to kill this very program with a SIGINT
@@ -290,6 +291,7 @@ pub fn main() u8 {
                 '#' => {
                     stdout.print("{} {}\n", .{ global.name, global.version_string }) catch {};
                     _ = stdout.write("Copyright (c) 2020 nofmal\n") catch {};
+                    _ = stdout.write("slightly modified by lexaone\n") catch {};
                     _ = stdout.write("Licensed under the zlib license\n") catch {};
                     return @enumToInt(MainError.OK);
                 },
@@ -369,7 +371,7 @@ pub fn main() u8 {
                 return @enumToInt(MainError.InvalidPassword);
             };
 
-            errdefer mem.secureZero(u8, &user_password);
+            errdefer c_utils.secureZero(u8, &user_password);
             P.validatePasswordLength(user_password[0..bytes_read]) catch |err| {
                 switch (err) {
                     error.InvalidCodepoints => log.fail("Password contains illegal codepoints\n"),
@@ -433,7 +435,7 @@ pub fn main() u8 {
         // End of password processing
     }
 
-    defer mem.secureZero(u8, &user_password);
+    defer c_utils.secureZero(u8, &user_password);
 
     algorithm.generatePassword(
         allocator,
@@ -455,7 +457,7 @@ pub fn main() u8 {
         return @enumToInt(MainError.DicewareNotGenerated);
     };
 
-    defer mem.secureZero(u8, &generated_password);
+    defer c_utils.secureZero(u8, &generated_password);
 
     {
         var i: usize = 0;
